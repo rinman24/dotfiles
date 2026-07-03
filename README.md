@@ -31,15 +31,17 @@ Add this to the billet operator config (`config.toml`, resolved via `--config`,
 
 ```toml
 [billet]
-personal_bootstrap_cmd = "git clone --depth 1 https://github.com/rinman24/dotfiles ~/.dotfiles 2>/dev/null || git -C ~/.dotfiles pull --ff-only; ~/.dotfiles/install.sh"
+personal_bootstrap_cmd = "if [ -d ~/.dotfiles/.git ]; then git -C ~/.dotfiles pull --ff-only; else git clone --depth 1 https://github.com/rinman24/dotfiles ~/.dotfiles; fi && ~/.dotfiles/install.sh"
 ```
 
 Notes:
 
 - The command must stay **idempotent** — billet re-runs it on every `billet start`
-  (clone the first time, `pull --ff-only` thereafter).
+  (clone the first time, `pull --ff-only` thereafter). The explicit exists-check
+  keeps failures loud: nothing is redirected to `/dev/null`, and `install.sh` only
+  runs once the repo is actually in place.
 - Leaving `personal_bootstrap_cmd` unset (or `""`) disables the hook entirely; a
   failing command aborts `billet start` like any other phase.
-- The clone uses HTTPS because containers may not have GitHub SSH keys; this only
-  works while the repo is public. If it goes private, switch to the SSH URL and
-  forward an agent, or bake a read token into the URL via a credential helper.
+- The clone uses HTTPS, which works anywhere while this repo is public. billet can
+  also agent-forward the personal bootstrap through the container's sshd, so an SSH
+  URL to a private repo works too — never bake a token into the URL.
