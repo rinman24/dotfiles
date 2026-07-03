@@ -32,4 +32,9 @@ done
 # tmux
 link_file "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 
+# Claude Code: personal plugin marketplace + skills (user scope). Non-fatal —
+# a missing tool must not brick a workspace bootstrap.
+bash "$DOTFILES_DIR/claude/install-plugins.sh" \
+  || echo "install.sh: claude plugin setup failed (non-fatal)" >&2
+
 echo "dotfiles installed from $DOTFILES_DIR"
