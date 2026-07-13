@@ -37,4 +37,7 @@ link_file "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 bash "$DOTFILES_DIR/claude/install-plugins.sh" \
   || echo "install.sh: claude plugin setup failed (non-fatal)" >&2
 
+# Claude Code: canon marketplace activation (skips itself when claude is absent)
+"$DOTFILES_DIR/claude/install.sh"
+
 echo "dotfiles installed from $DOTFILES_DIR"
