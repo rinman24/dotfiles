@@ -16,6 +16,7 @@ aliases work whichever login shell a machine uses.
 
 - `shell/aliases.sh` — aliases sourced by bash and zsh (`yolo` = `claude --dangerously-skip-permissions`)
 - `tmux/tmux.conf` — tmux configuration (linked to `~/.tmux.conf`)
+- `claude/` — canon plugin-marketplace activation for Claude Code (see `claude/README.md`)
 - `install.sh` — idempotent installer
 
 ## billet integration
