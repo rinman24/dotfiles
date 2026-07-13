@@ -1,7 +1,7 @@
 {
   "extraKnownMarketplaces": {
     "canon": {
-      "source": { "source": "github", "repo": "rinman24/canon", "ref": "v1.0.0" },
+      "source": { "source": "github", "repo": "rinman24/canon", "ref": "v1.1.0" },
       "autoUpdate": false
     }
   },
