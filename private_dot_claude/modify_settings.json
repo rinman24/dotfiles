@@ -11,7 +11,7 @@
 {{- if .chezmoi.stdin -}}{{- $current = fromJson .chezmoi.stdin -}}{{- end -}}
 {{- $fragment := dict
     "extraKnownMarketplaces" (dict
-      "canon" (dict "source" (dict "source" "github" "repo" "rinman24/canon" "ref" "v1.2.0") "autoUpdate" false)
+      "canon" (dict "source" (dict "source" "github" "repo" "rinman24/canon" "ref" "v2.0.0") "autoUpdate" false)
       "my-skills" (dict "source" (dict "source" "github" "repo" "rinman24/claude-skills"))
     )
     "enabledPlugins" (dict
