@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/private_dot_claude/modify_settings\\.json$/"
+      ],
+      "matchStrings": [
+        "\"repo\"\\s+\"(?<depName>rinman24/canon)\"[^)]*?\"ref\"\\s+\"(?<currentValue>v?\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "rinman24/canon"
+    }
+  ]
+}
