@@ -17,14 +17,26 @@
 
    hasCompletedOnboarding alone skips the ENTIRE wizard (theme picker included),
    so we deliberately do NOT set `theme` here — that would force a value and
-   clobber a machine's own light/dark choice. The per-directory "trust this folder"
-   dialog is a separate gate stored under projects[<path>]; it is not seeded here
-   because workspace paths vary per repo and are not known to the dotfiles layer.
+   clobber a machine's own light/dark choice.
+
+   projects[<path>].hasTrustDialogAccepted seeds Claude Code's per-directory
+   "trust this folder" gate, which is also stored in this (ephemeral) file and so
+   also resets on every container recreate. We seed the exact workspace folders
+   billet lands `connect` in (its tmux session does `cd <workspaceFolder>`):
+   /workspace for repos on billet's standard devcontainer convention (billet,
+   squadra), and /app for gswa-backend (whose production image WORKDIR is /app).
+   mergeOverwrite deep-merges, so an existing projects[<path>] entry keeps its
+   other keys (allowedTools, mcpServers, …) and only gains hasTrustDialogAccepted.
+   Add a path here if a new workspace uses a different workspaceFolder.
 */ -}}
 {{- $current := dict -}}
 {{- if .chezmoi.stdin -}}{{- $current = fromJson .chezmoi.stdin -}}{{- end -}}
 {{- $fragment := dict
     "hasCompletedOnboarding" true
+    "projects" (dict
+      "/workspace" (dict "hasTrustDialogAccepted" true)
+      "/app" (dict "hasTrustDialogAccepted" true)
+    )
 -}}
 {{- /*
    Idempotency guard (mirrors modify_settings.json): merge into a COPY
