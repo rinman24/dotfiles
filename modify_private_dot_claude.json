@@ -1,0 +1,42 @@
+{{/* chezmoi:modify-template */}}
+{{- /*
+   Surgically maintain ~/.claude.json — Claude Code's user config, a SIBLING of
+   ~/.claude/settings.json (note: this file lives directly in $HOME, not under
+   ~/.claude/). Claude Code owns and constantly rewrites it; this template
+   deep-merges only the key below OVER the current contents and leaves everything
+   else (machineID, userID, caches, projects, …) untouched.
+
+   Why this exists: in billet workspace containers ~/.claude/ is a persistent
+   Docker volume, but ~/.claude.json sits on the ephemeral overlay filesystem, so
+   it is wiped on every container recreate (`billet stop/start`). With the flag
+   gone, Claude Code re-runs its first-run wizard (welcome -> theme -> sign-in) on
+   every fresh container — which reads as "it keeps asking me to log in" even
+   though the injected OAuth token in settings.json authenticates fine.
+   personal_bootstrap_cmd runs chezmoi on every `billet connect` before claude is
+   launched, so this re-seeds the flag each time and the wizard is skipped.
+
+   hasCompletedOnboarding alone skips the ENTIRE wizard (theme picker included),
+   so we deliberately do NOT set `theme` here — that would force a value and
+   clobber a machine's own light/dark choice. The per-directory "trust this folder"
+   dialog is a separate gate stored under projects[<path>]; it is not seeded here
+   because workspace paths vary per repo and are not known to the dotfiles layer.
+*/ -}}
+{{- $current := dict -}}
+{{- if .chezmoi.stdin -}}{{- $current = fromJson .chezmoi.stdin -}}{{- end -}}
+{{- $fragment := dict
+    "hasCompletedOnboarding" true
+-}}
+{{- /*
+   Idempotency guard (mirrors modify_settings.json): merge into a COPY
+   (mergeOverwrite mutates its first arg), then compare canonically via toJson
+   (order-insensitive). When the flag is already present, echo the on-disk bytes
+   verbatim so key-order churn from Claude Code's own runtime writes doesn't show
+   up in 'chezmoi diff'. Only re-serialize on genuine drift: fresh container
+   (empty stdin) or the flag missing/false.
+*/ -}}
+{{- $merged := mergeOverwrite (deepCopy $current) $fragment -}}
+{{- if and .chezmoi.stdin (eq (toJson $merged) (toJson $current)) -}}
+{{- .chezmoi.stdin -}}
+{{- else -}}
+{{- toPrettyJson $merged }}
+{{ end -}}
