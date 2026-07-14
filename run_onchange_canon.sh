@@ -19,6 +19,14 @@ command -v claude >/dev/null 2>&1 || {
   echo "chezmoi: claude not on PATH; skipping canon activation (declaration still applied)"
   exit 0
 }
+# Self-heal a stale marketplace entry from a persisted (root-era / old-pin) ~/.claude
+# volume: when a canon entry already exists, `add` keeps its OLD ref instead of adopting
+# the current pin (observed 2026-07-14 — known_marketplaces pinned canon v1.0.0 while
+# settings declared v1.2.0, so canon-core actually ran v1.0.0). `marketplace add` has no
+# --ref flag; the pin comes from modify_settings.json's extraKnownMarketplaces, which `add`
+# only re-reads when it CREATES the entry. Removing first (no-op on a fresh volume) forces
+# that fresh read, keeping the CLI cache authoritative to the declared pin.
+claude plugin marketplace remove canon >/dev/null 2>&1 || true
 claude plugin marketplace add rinman24/canon --scope user \
   || echo "chezmoi: 'claude plugin marketplace add' failed (non-fatal)" >&2
 claude plugin install canon-core@canon --scope user \
