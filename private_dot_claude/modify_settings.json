@@ -27,4 +27,17 @@
       ))
     )
 -}}
-{{- mergeOverwrite $current $fragment | toPrettyJson -}}
+{{- /*
+   Idempotency guard: merge into a COPY (mergeOverwrite mutates its first arg),
+   then compare canonically via toJson (order-insensitive on both sides). When the
+   managed surface is already present, echo the on-disk bytes verbatim so key-order
+   differences from Claude Code's own runtime writes don't churn 'chezmoi diff'.
+   Only re-serialize on genuine drift: fresh machine (empty stdin) or a changed
+   managed value.
+*/ -}}
+{{- $merged := mergeOverwrite (deepCopy $current) $fragment -}}
+{{- if and .chezmoi.stdin (eq (toJson $merged) (toJson $current)) -}}
+{{- .chezmoi.stdin -}}
+{{- else -}}
+{{- toPrettyJson $merged }}
+{{ end -}}
