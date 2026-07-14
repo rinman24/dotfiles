@@ -1,0 +1,9 @@
+# Skip the zsh rc on machines without zsh installed — mirrors the old install.sh
+# guard ("only create a missing rc file when its shell is actually installed").
+# bash is assumed present in every target image, so .bashrc is always managed.
+{{ if not (lookPath "zsh") }}.zshrc{{ end }}
+
+# Repo-root files that are not source state — never apply them to $HOME.
+README.md
+install.sh
+

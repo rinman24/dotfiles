@@ -32,7 +32,7 @@ engineering rules are not being injected.
 
 Fix (one-time per machine):
 
-    ~/Code/dotfiles/claude/install.sh
+    chezmoi apply
 
 then restart Claude Code.
 ================================================================================

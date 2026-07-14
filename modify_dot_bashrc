@@ -1,0 +1,15 @@
+#!/bin/bash
+# chezmoi modify_ script: current ~/.bashrc arrives on stdin, new contents leave
+# on stdout. Append the aliases source line if missing; otherwise emit the file
+# unchanged. The rc file is co-owned (images ship their own), so we never manage
+# it wholesale. The source line is byte-identical to the one the old install.sh
+# appended, so machines migrated from that layout are not double-sourced. The
+# pass-through branch re-adds the single trailing newline that $(cat) strips, so
+# apply is a true no-op once the line is present.
+set -euo pipefail
+current="$(cat)"
+line='[ -f "$HOME/.aliases.sh" ] && . "$HOME/.aliases.sh"'
+case "$current" in
+  *"$line"*) printf '%s\n' "$current" ;;
+  *)         printf '%s\n%s\n' "$current" "$line" ;;
+esac

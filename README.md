@@ -1,48 +1,43 @@
 # dotfiles
 
-Personal shell and tool configuration, applied by an idempotent installer.
+Personal shell and tool configuration, managed by [chezmoi](https://chezmoi.io).
+The repo root is the chezmoi source tree; chezmoi applies it identically on every
+target — my Mac and each devcontainer.
 
 ```bash
-git clone git@github.com:rinman24/dotfiles.git ~/.dotfiles
-~/.dotfiles/install.sh
+# any machine (chezmoi is a single static binary):
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin" init --apply rinman24
+# on the Mac, prefer brew to own the binary:  brew install chezmoi
+chezmoi update   # pull + re-apply thereafter
 ```
-
-`install.sh` is safe to re-run: it symlinks each config into place (backing up any
-pre-existing regular file once, to `*.bak`) and appends a source line for
-`shell/aliases.sh` to both `~/.bashrc` and `~/.zshrc` — exactly once — so the
-aliases work whichever login shell a machine uses.
 
 ## Layout
 
-- `shell/aliases.sh` — aliases sourced by bash and zsh (`yolo` = `claude --dangerously-skip-permissions`)
-- `tmux/tmux.conf` — tmux configuration (linked to `~/.tmux.conf`)
-- `claude/` — canon plugin-marketplace activation for Claude Code (see `claude/README.md`)
-- `install.sh` — idempotent installer
+- `dot_aliases.sh` → `~/.aliases.sh` (aliases; `yolo` = `claude --dangerously-skip-permissions`)
+- `dot_tmux.conf` → `~/.tmux.conf`
+- `modify_dot_bashrc`, `modify_dot_zshrc` — append the aliases source line if
+  missing, preserving image-provided rc content (never a wholesale managed file)
+- `.chezmoiignore` — skips `.zshrc` on machines without zsh; also excludes this
+  README and the transitional `install.sh` from being applied to `$HOME`
+- `private_dot_claude/` → `~/.claude/` (0700)
+  - `modify_settings.json` — surgically deep-merges the managed settings surface
+    (canon + skills marketplaces, enabled plugins, tripwire hook) into
+    `~/.claude/settings.json`; leaves every other key Claude Code writes untouched
+  - `executable_canon-tripwire.sh` → `~/.claude/canon-tripwire.sh`
+- `run_after_pyright.sh` — ensures `pyright-langserver` is on PATH (non-fatal)
+- `run_onchange_canon.sh` — canon marketplace/plugin CLI activation, belt-and-braces
+- `install.sh` — transitional shim only; forwards old bootstrap calls to chezmoi
 
 ## billet integration
 
-These dotfiles are applied automatically to every billet-managed devcontainer via
-billet's `personal_bootstrap_cmd` hook (billet PR #22). billet runs the command
-below **inside the service container** on every `billet start`, immediately after
-the repo's devcontainer `postCreateCommand` — so the dotfiles survive container
-rebuilds without being committed to any team repo.
-
-Add this to the billet operator config (`config.toml`, resolved via `--config`,
-`$BILLET_CONFIG`, or the XDG default path):
+chezmoi is applied to every billet-managed devcontainer via billet's
+`personal_bootstrap_cmd`, run inside the service container on every `billet start`:
 
 ```toml
 [billet]
-personal_bootstrap_cmd = "if [ -d ~/.dotfiles/.git ]; then git -C ~/.dotfiles pull --ff-only; else git clone --depth 1 https://github.com/rinman24/dotfiles ~/.dotfiles; fi && ~/.dotfiles/install.sh"
+personal_bootstrap_cmd = 'export PATH="$HOME/.local/bin:$PATH"; if command -v chezmoi >/dev/null 2>&1; then chezmoi update; else sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin" init --apply rinman24; fi'
 ```
 
-Notes:
-
-- The command must stay **idempotent** — billet re-runs it on every `billet start`
-  (clone the first time, `pull --ff-only` thereafter). The explicit exists-check
-  keeps failures loud: nothing is redirected to `/dev/null`, and `install.sh` only
-  runs once the repo is actually in place.
-- Leaving `personal_bootstrap_cmd` unset (or `""`) disables the hook entirely; a
-  failing command aborts `billet start` like any other phase.
-- The clone uses HTTPS, which works anywhere while this repo is public. billet can
-  also agent-forward the personal bootstrap through the container's sshd, so an SSH
-  URL to a private repo works too — never bake a token into the URL.
+Idempotent by design: install-and-apply the first start, `chezmoi update` (pull +
+re-apply) every start after. Leaving `personal_bootstrap_cmd` unset disables the
+hook; a failing command aborts `billet start` like any other phase.

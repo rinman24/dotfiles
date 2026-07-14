@@ -1,0 +1,30 @@
+{{/* chezmoi:modify-template */}}
+{{- /*
+   Surgically maintain ~/.claude/settings.json. Claude Code owns this file; this
+   template deep-merges the declarative fragment below OVER the current contents
+   (fragment wins on conflict) and leaves every other key untouched. On a fresh
+   container the current file is empty, so the fragment is the whole result —
+   which is why the fragment must carry the FULL managed surface (canon + skills
+   + pyright + tripwire hook), not just the pyright delta.
+*/ -}}
+{{- $current := dict -}}
+{{- if .chezmoi.stdin -}}{{- $current = fromJson .chezmoi.stdin -}}{{- end -}}
+{{- $fragment := dict
+    "extraKnownMarketplaces" (dict
+      "canon" (dict "source" (dict "source" "github" "repo" "rinman24/canon" "ref" "v1.2.0") "autoUpdate" false)
+      "my-skills" (dict "source" (dict "source" "github" "repo" "rinman24/claude-skills"))
+    )
+    "enabledPlugins" (dict
+      "canon-core@canon" true
+      "handoff@my-skills" true
+      "local-backlog@my-skills" true
+      "pyright-lsp@claude-plugins-official" true
+    )
+    "hooks" (dict
+      "SessionStart" (list (dict
+        "matcher" "startup"
+        "hooks" (list (dict "type" "command" "command" "\"$HOME\"/.claude/canon-tripwire.sh" "timeout" 15))
+      ))
+    )
+-}}
+{{- mergeOverwrite $current $fragment | toPrettyJson -}}
