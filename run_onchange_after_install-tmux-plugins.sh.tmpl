@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# re-run when the tmux config changes:
+# tmux.conf hash: {{ include "dot_config/tmux/tmux.conf" | sha256sum }}
+set -euo pipefail
+TPM="$HOME/.tmux/plugins/tpm"
+if [ -x "$TPM/bin/install_plugins" ]; then
+  "$TPM/bin/install_plugins"
+fi
