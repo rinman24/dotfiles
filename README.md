@@ -14,7 +14,8 @@ chezmoi update   # pull + re-apply thereafter
 ## Layout
 
 - `dot_aliases.sh` → `~/.aliases.sh` (aliases; `yolo` = `claude --dangerously-skip-permissions`)
-- `dot_tmux.conf` → `~/.tmux.conf`
+- `dot_config/tmux/tmux.conf` → `~/.config/tmux/tmux.conf` (hand-rolled status
+  line; no plugin manager — see the palette block to recolour it)
 - `modify_dot_bashrc`, `modify_dot_zshrc` — append the aliases source line if
   missing, preserving image-provided rc content (never a wholesale managed file)
 - `.chezmoiignore` — skips `.zshrc` on machines without zsh; also excludes this
