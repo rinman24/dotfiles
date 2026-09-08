@@ -1,0 +1,38 @@
+# ~/.config/git/config — managed by chezmoi (rinman24/dotfiles)
+#
+# Lives here, not in ~/.gitconfig, because git reads this XDG path as global config
+# automatically while ~/.gitconfig is co-owned in the devcontainers: a repo's
+# Dockerfile writes safe.directory there, so managing that file wholesale would
+# clobber it. ~/.gitconfig is read AFTER this file, so a deliberate
+# `git config --global …` still overrides anything set here (per-machine escape hatch).
+
+[user]
+	name = Rich Inman, PhD
+	email = rinman24@gmail.com
+
+[commit]
+	# Centralised here so each repo's devcontainer postCreateCommand can drop its own
+	# `git config --global commit.gpgsign false` line.
+	gpgsign = false
+
+# GenShift work commits use the work address. Keyed on the REMOTE URL rather than
+# `includeIf "gitdir:…"`: every billet Workspace is bind-mounted at the same
+# /workspace path, so a gitdir condition cannot tell the repos apart. Requires
+# git >= 2.36 for `hasconfig:`.
+#
+# One stanza per URL shape — no single pattern covers them all:
+#   * GitHub SSH and HTTPS are different prefixes.
+#   * Azure DevOps' clone button hands out the userinfo form
+#     (https://genshift@dev.azure.com/…), which `https://dev.azure.com/**` misses.
+#   * Azure DevOps SSH is git@ssh.dev.azure.com:v3/<org>/…
+# Anything not matched falls through to the personal address above.
+[includeIf "hasconfig:remote.*.url:https://github.com/genshift-energy/**"]
+	path = ~/.config/git/genshift.inc
+[includeIf "hasconfig:remote.*.url:git@github.com:genshift-energy/**"]
+	path = ~/.config/git/genshift.inc
+[includeIf "hasconfig:remote.*.url:https://dev.azure.com/genshift/**"]
+	path = ~/.config/git/genshift.inc
+[includeIf "hasconfig:remote.*.url:https://*@dev.azure.com/genshift/**"]
+	path = ~/.config/git/genshift.inc
+[includeIf "hasconfig:remote.*.url:git@ssh.dev.azure.com:v3/genshift/**"]
+	path = ~/.config/git/genshift.inc
