@@ -16,6 +16,12 @@ chezmoi update   # pull + re-apply thereafter
 - `dot_aliases.sh` → `~/.aliases.sh` (aliases; `yolo` = `claude --dangerously-skip-permissions`)
 - `dot_config/tmux/tmux.conf` → `~/.config/tmux/tmux.conf` (hand-rolled status
   line; no plugin manager — see the palette block to recolour it)
+- `dot_config/git/config` → `~/.config/git/config` (commit identity and
+  `commit.gpgsign = false`; swaps `user.email` to the GenShift address for
+  `genshift-energy` and Azure DevOps remotes via `includeIf "hasconfig:remote.*.url:…"`,
+  keyed on the remote because every billet Workspace shares the `/workspace` path)
+- `dot_config/git/genshift.inc` → `~/.config/git/genshift.inc` (the work-address
+  override the above includes)
 - `modify_dot_bashrc`, `modify_dot_zshrc` — append the aliases source line if
   missing, preserving image-provided rc content (never a wholesale managed file)
 - `.chezmoiignore` — skips `.zshrc` on machines without zsh; also excludes this
