@@ -14,6 +14,18 @@
       ],
       "datasourceTemplate": "github-tags",
       "packageNameTemplate": "rinman24/canon"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/\\.github/workflows/shfmt\\.yml$/"
+      ],
+      "matchStrings": [
+        "SHFMT_VERSION:\\s+(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "mvdan/sh",
+      "packageNameTemplate": "mvdan/sh"
     }
   ]
 }
