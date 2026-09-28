@@ -1,0 +1,80 @@
+name: shfmt
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # shfmt is not packaged in Debian/Ubuntu, so CI pulls the upstream static
+  # release binary. Renovate keeps this literal pinned to the latest mvdan/sh
+  # release via the customManager in renovate.json — do not use @latest.
+  SHFMT_VERSION: v3.13.1
+
+jobs:
+  posix-format:
+    name: POSIX sh formatting and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shfmt
+        run: |
+          set -eu
+          curl -fsSL -o "${RUNNER_TEMP}/shfmt" \
+            "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64"
+          chmod +x "${RUNNER_TEMP}/shfmt"
+          echo "${RUNNER_TEMP}" >>"${GITHUB_PATH}"
+          # Fail loudly if the downloaded binary is not the pinned version, so a
+          # bad Renovate bump or a moved release asset cannot pass silently.
+          test "$("${RUNNER_TEMP}/shfmt" --version)" = "${SHFMT_VERSION}"
+
+      - name: Check formatting
+        run: |
+          set -eu
+          # Scope: only POSIX sh scripts. Every other shell file in this repo is
+          # bash (install.sh, modify_dot_*, run_*, canon-tripwire.sh) and is
+          # deliberately NOT gated here — "-ln posix" is the wrong parser for
+          # them and they do not currently satisfy these flags.
+          posix_files=$(
+              for f in $(git ls-files); do
+                  case $(head -n 1 -- "$f" 2>/dev/null) in
+                      # The leading "(" is required: a bare case pattern ")" inside
+                      # a "$(...)" substitution is a bash parse error.
+                      ('#!/bin/sh' | '#!/usr/bin/env sh') printf '%s\n' "$f" ;;
+                  esac
+              done
+          )
+          if [ -z "${posix_files}" ]; then
+              echo "::warning::no '#!/bin/sh' script found in the repo — this gate" \
+                  "is currently covering only the explicit allowlist below"
+          fi
+          # dot_aliases.sh carries no shebang (it is sourced by both bash and
+          # zsh) but is POSIX-clean, so it is gated explicitly. This also keeps
+          # the gate covering at least one real file at all times.
+          # shellcheck disable=SC2086  # word splitting on the file list is intended
+          set -- ${posix_files} dot_aliases.sh
+          echo "Gating $# file(s):"
+          printf '  %s\n' "$@"
+          # Hand the same list to the shellcheck step, so the two gates can never
+          # disagree about which files are POSIX sh.
+          printf '%s\n' "$@" >"${RUNNER_TEMP}/posix-files"
+          if ! shfmt -ln posix -i 4 -fn -ci -d "$@"; then
+              echo "::error::shfmt reported formatting drift — fix with:" \
+                  "shfmt -ln posix -i 4 -fn -ci -w <file>"
+              exit 1
+          fi
+
+      - name: Check with shellcheck
+        run: |
+          set -eu
+          # shfmt only parses and formats; it passes many constructs that break
+          # under dash, /bin/sh in Debian/Ubuntu berths. shellcheck -s sh is the
+          # check that catches those. Preinstalled on ubuntu-latest runners.
+          shellcheck --version | head -n 2
+          # shellcheck disable=SC2046  # word splitting on the file list is intended
+          shellcheck -s sh $(cat "${RUNNER_TEMP}/posix-files")
