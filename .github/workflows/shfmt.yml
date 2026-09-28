@@ -13,7 +13,7 @@ env:
   # shfmt is not packaged in Debian/Ubuntu, so CI pulls the upstream static
   # release binary. Renovate keeps this literal pinned to the latest mvdan/sh
   # release via the customManager in renovate.json — do not use @latest.
-  SHFMT_VERSION: v3.13.1
+  SHFMT_VERSION: v3.14.1
 
 jobs:
   posix-format:
