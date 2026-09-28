@@ -1,0 +1,7 @@
+{{- /* Parent dir of the two board clones. On the Mac they are working copies under
+       ~/Code; in berths chezmoi clones them under ~/src (.chezmoiexternal.toml.tmpl). */ -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{ joinPath .chezmoi.homeDir "Code" }}
+{{- else -}}
+{{ joinPath .chezmoi.homeDir "src" }}
+{{- end -}}
