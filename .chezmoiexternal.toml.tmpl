@@ -1,0 +1,22 @@
+{{- /*
+   The board's two repos (github.com/rinman24/board, public; board-knowledge,
+   private). Berths only: on the Mac they are hand-managed working copies and
+   chezmoi must never pull under them. SSH URLs because git-repo externals need
+   them for private repos; the agent is forwarded by billet's personal_bootstrap_cmd.
+   Agents are generated from these by run_after_board-agents.sh.tmpl.
+*/ -}}
+{{- if ne .chezmoi.os "darwin" }}
+["src/board"]
+    type = "git-repo"
+    url = "git@github.com:rinman24/board.git"
+    refreshPeriod = "24h"
+    [ "src/board".pull ]
+        args = ["--ff-only"]
+
+["src/board-knowledge"]
+    type = "git-repo"
+    url = "git@github.com:rinman24/board-knowledge.git"
+    refreshPeriod = "24h"
+    [ "src/board-knowledge".pull ]
+        args = ["--ff-only"]
+{{- end }}

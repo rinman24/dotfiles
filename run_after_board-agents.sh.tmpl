@@ -1,0 +1,11 @@
+#!/bin/bash
+# Regenerate the board's advisor agents into ~/.claude/{agents,skills}.
+# run_after_ (every apply), not run_onchange_: the inputs are the wikis and roster in
+# an external repo that chezmoi pulls, which no template here can hash. The generator
+# is idempotent and writes only what changed, so a no-op apply stays a no-op.
+# Non-fatal: a workspace bootstrap must never brick on the board.
+set -uo pipefail
+board="{{ template "board-home" . }}/board"
+[ -f "$board/scripts/generate-agents.py" ] || { echo "chezmoi: board not cloned at $board; skipping agents" >&2; exit 0; }
+command -v uv >/dev/null 2>&1 || { echo "chezmoi: uv not on PATH; skipping board agents" >&2; exit 0; }
+uv run --quiet "$board/scripts/generate-agents.py" | grep -Ev '^(knowledge:|  unchanged)' || true
