@@ -10,6 +10,9 @@
 {{- $current := dict -}}
 {{- if .chezmoi.stdin -}}{{- $current = fromJson .chezmoi.stdin -}}{{- end -}}
 {{- $fragment := dict
+    "env" (dict
+      "CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE" "1"
+    )
     "extraKnownMarketplaces" (dict
       "canon" (dict "source" (dict "source" "github" "repo" "rinman24/canon" "ref" "v2.0.0") "autoUpdate" false)
       "my-skills" (dict "source" (dict "source" "github" "repo" "rinman24/claude-skills"))
