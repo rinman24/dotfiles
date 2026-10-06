@@ -1,23 +1,18 @@
 # ~/.config/git/config — managed by chezmoi (rinman24/dotfiles)
 #
-# Lives here, not in ~/.gitconfig, because git reads this XDG path as global config
-# automatically while ~/.gitconfig is co-owned in the devcontainers: a repo's
-# Dockerfile writes safe.directory there, so managing that file wholesale would
-# clobber it. ~/.gitconfig is read AFTER this file, so a deliberate
-# `git config --global …` still overrides anything set here (per-machine escape hatch).
+# Lives at the XDG path, which git reads as global config automatically, so
+# ~/.gitconfig stays free for machine-local overrides: it is read AFTER this file,
+# so a deliberate `git config --global …` still wins over anything set here.
 
 [user]
 	name = Rich Inman, PhD
 	email = rinman24@gmail.com
 
 [commit]
-	# Centralised here so each repo's devcontainer postCreateCommand can drop its own
-	# `git config --global commit.gpgsign false` line.
 	gpgsign = false
 
 # GenShift work commits use the work address. Keyed on the REMOTE URL rather than
-# `includeIf "gitdir:…"`: every billet Workspace is bind-mounted at the same
-# /workspace path, so a gitdir condition cannot tell the repos apart. Requires
+# `includeIf "gitdir:…"`, so it holds wherever a repo is cloned. Requires
 # git >= 2.36 for `hasconfig:`.
 #
 # One stanza per URL shape — no single pattern covers them all:
