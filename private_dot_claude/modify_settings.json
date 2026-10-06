@@ -23,9 +23,6 @@
       "local-backlog@my-skills" true
       "pyright-lsp@claude-plugins-official" true
     )
-    "permissions" (dict
-      "additionalDirectories" (list (printf "%s/board-knowledge" (includeTemplate "board-home" .)))
-    )
     "hooks" (dict
       "SessionStart" (list (dict
         "matcher" "startup"
