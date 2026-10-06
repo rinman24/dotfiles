@@ -1,0 +1,3 @@
+# ~/.zshrc — managed by chezmoi (rinman24/dotfiles)
+
+alias yolo='claude --dangerously-skip-permissions'
