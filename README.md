@@ -12,8 +12,6 @@ chezmoi update   # pull + re-apply thereafter
 ## Layout
 
 - `dot_aliases.sh` → `~/.aliases.sh` (aliases; `yolo` = `claude --dangerously-skip-permissions`)
-- `dot_config/tmux/tmux.conf` → `~/.config/tmux/tmux.conf` (hand-rolled status
-  line; no plugin manager — see the palette block to recolour it)
 - `dot_config/git/config` → `~/.config/git/config` (commit identity and
   `commit.gpgsign = false`; swaps `user.email` to the GenShift address for
   `genshift-energy` and Azure DevOps remotes via `includeIf "hasconfig:remote.*.url:…"`)
