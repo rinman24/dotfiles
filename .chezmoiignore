@@ -1,8 +1,3 @@
 # Repo-root files that are not source state — never apply them to $HOME.
 README.md
 renovate.json
-
-
-# Pinned github.com host keys serve only the berths' board clones
-# (.chezmoiexternal.toml.tmpl); the Mac's own known_hosts already trusts GitHub.
-{{ if eq .chezmoi.os "darwin" }}.config/board/github_known_hosts{{ end }}
