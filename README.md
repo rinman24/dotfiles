@@ -9,8 +9,14 @@ Prerequisite: [Homebrew](https://brew.sh).
 
 ```bash
 brew install chezmoi
-chezmoi init --apply --ssh rinman24   # clone to ~/.local/share/chezmoi and apply
+git clone git@github.com:rinman24/dotfiles.git ~/Code/dotfiles
+chezmoi init --apply --source ~/Code/dotfiles
 ```
+
+`.chezmoi.toml.tmpl` renders `~/.config/chezmoi/chezmoi.toml` with `sourceDir`
+set to the clone, so `~/Code/dotfiles` is the only copy and every later chezmoi
+command uses it. Repo-local git config (e.g. `user.email`) set in that clone
+therefore applies to commits made via `chezmoi cd`.
 
 Thereafter:
 
@@ -27,7 +33,8 @@ chezmoi cd       # jump into the source tree to edit, commit and push
 | `dot_zshrc` | `~/.zshrc` | Fully managed. `yolo` = `claude --dangerously-skip-permissions` |
 | `dot_config/ghostty/config.ghostty` | `~/.config/ghostty/config.ghostty` | Built-in Catppuccin themes (Latte light, Mocha dark), JetBrains Mono 15 |
 
-`.chezmoiignore` keeps this README out of `$HOME`. `~/.zprofile` (Homebrew's
+`.chezmoi.toml.tmpl` and `.chezmoiignore` are chezmoi's own files, not
+targets; the latter keeps this README out of `$HOME`. `~/.zprofile` (Homebrew's
 `shellenv`) and all git configuration (identity, signing) are deliberately left
 unmanaged for per-machine setup.
 
