@@ -1,3 +1,2 @@
 # Repo-root files that are not source state — never apply them to $HOME.
 README.md
-renovate.json
