@@ -21,10 +21,3 @@ chezmoi update   # pull + re-apply thereafter
   override the above includes)
 - `modify_dot_zshrc` — appends the aliases source line to `~/.zshrc` if missing
 - `.chezmoiignore` — excludes this README from being applied to `$HOME`
-- `private_dot_claude/` → `~/.claude/` (0700)
-  - `modify_settings.json` — surgically deep-merges the managed settings surface
-    (canon + skills marketplaces, enabled plugins, tripwire hook) into
-    `~/.claude/settings.json`; leaves every other key Claude Code writes untouched
-  - `executable_canon-tripwire.sh` → `~/.claude/canon-tripwire.sh`
-- `run_after_pyright.sh` — ensures `pyright-langserver` is on PATH (non-fatal)
-- `run_onchange_canon.sh` — canon marketplace/plugin CLI activation, belt-and-braces
