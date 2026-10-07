@@ -32,11 +32,37 @@ chezmoi cd       # jump into the source tree to edit, commit and push
 |---|---|---|
 | `dot_zshrc` | `~/.zshrc` | Fully managed. `yolo` = `claude --dangerously-skip-permissions` |
 | `dot_config/ghostty/config.ghostty` | `~/.config/ghostty/config.ghostty` | Built-in Catppuccin themes (Latte light, Mocha dark), JetBrains Mono 15 |
+| `private_dot_claude/executable_statusline.sh` | `~/.claude/statusline.sh` | Claude Code status line: model · effort, folder, branch, worktree, context tokens, cost |
+| `private_dot_claude/modify_settings.json` | `~/.claude/settings.json` | Partially managed: sets only `statusLine`; Claude Code owns every other key |
 
 `.chezmoi.toml.tmpl` and `.chezmoiignore` are chezmoi's own files, not
 targets; the latter keeps this README out of `$HOME`. `~/.zprofile` (Homebrew's
 `shellenv`) and all git configuration (identity, signing) are deliberately left
 unmanaged for per-machine setup.
+
+## Claude Code status line
+
+`~/.claude/settings.json` is rewritten by Claude Code itself (`/config`,
+plugins, model settings) and holds machine-specific paths, so chezmoi never
+owns it wholesale. `modify_settings.json` is a
+[modify script](https://www.chezmoi.io/user-guide/manage-different-types-of-file/#manage-part-but-not-all-of-a-file):
+it pipes the live file through `jq` and sets only `statusLine`.
+
+To iterate on the script before committing, run a throwaway session from the
+clone (or a worktree of it) pointed at the working copy. `--settings` overrides
+the user setting for that session only, and script edits appear on the next
+status line refresh without a restart:
+
+```bash
+claude --settings "{\"statusLine\":{\"type\":\"command\",\"command\":\"$PWD/private_dot_claude/executable_statusline.sh\"}}"
+```
+
+Or render it without a session:
+
+```bash
+echo '{"model":{"display_name":"Opus"},"effort":{"level":"high"},"workspace":{"current_dir":"'"$PWD"'"},"context_window":{"total_input_tokens":45000,"context_window_size":200000,"used_percentage":22},"cost":{"total_cost_usd":0.42}}' \
+  | private_dot_claude/executable_statusline.sh
+```
 
 ## History
 

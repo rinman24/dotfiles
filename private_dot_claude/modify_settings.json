@@ -1,0 +1,8 @@
+#!/bin/sh
+# chezmoi modify script for ~/.claude/settings.json (rinman24/dotfiles).
+# Claude Code writes this file itself (/config, plugins, model settings), so
+# chezmoi owns only the statusLine key; every other key passes through. jq
+# preserves key order, so Claude Code's own rewrites don't show as drift.
+input=$(cat)
+[ -n "$input" ] || input='{}'
+printf '%s\n' "$input" | jq '.statusLine = {"type": "command", "command": "~/.claude/statusline.sh"}'
