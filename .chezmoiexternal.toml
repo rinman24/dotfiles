@@ -1,0 +1,8 @@
+# Files chezmoi downloads instead of keeping in this repo.
+
+# Claude Code status line, pinned to a release of rinman24/claude-statusline.
+# Bump the tag to upgrade; `chezmoi apply` then fetches the new version.
+[".claude/statusline.sh"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/rinman24/claude-statusline/v1.0.0/statusline.sh"
+    executable = true
